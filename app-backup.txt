@@ -1,0 +1,119 @@
+require('dotenv').config(); // WEB2test!
+
+const express = require('express');
+const path = require('path');
+const routes = require('./routes/routes');
+const api = require('./routes/api');
+const ticket = require('./routes/ticket');
+const session = require('express-session');
+const { auth } = require('express-openid-connect');
+
+require('dotenv').config();
+
+const app = express();
+
+/*app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Set secure: true if you're using HTTPS
+  }));*/
+
+const config = {
+  /*authRequired: false,
+  auth0Logout: true,
+  secret: process.env.AUTH0_USER_CLIENT_SECRET,
+  baseURL: 'http://localhost:3000',
+  clientID: process.env.AUTH0_USER_CLIENT_ID,
+  issuerBaseURL: process.env.AUTH0_USER_ISSUER,*/
+
+  authRequired: false,
+  auth0Logout: true,
+  //secret: process.env.SESSION_SECRET, // Use the same secret
+  secret: process.env.SESSION_SECRET,
+  baseURL: 'http://localhost:3000',
+  clientID: process.env.AUTH0_USER_CLIENT_ID,
+  issuerBaseURL: process.env.AUTH0_USER_ISSUER/*,
+
+  afterCallback: (req, res, session) => {
+    console.log("After callback session ->", req.oidc.user);
+    console.log("wtf")
+    console.log("jebeni usrani kurcev session -> " + req.session.returnTo)
+    const returnTo = req.session.returnTo || '/'; // Default to homepage if no URL
+    console.log("Idemo na -> " + returnTo);
+    return { redirectTo: "http://localhost:/callback" }; // Redirect to saved URL
+  }*/
+};
+
+// Use express-openid-connect for authentication
+app.use(auth(config));
+
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'pages'));
+
+app.use(express.static(path.join(__dirname, 'pages')));
+app.use(express.static(path.join(__dirname, 'scripts')));
+
+/*app.get('/callback', (req, res) => {
+    /*console.log("Session returnTo URL:", req.session.returnTo);
+    const returnTo = req.session.returnTo || '/';
+    delete req.session.returnTo;
+    res.redirect(returnTo);
+    console.log("After callback session ->", req.oidc.user);
+    console.log("wtf")
+    console.log("jebeni usrani kurcev session -> " + req.session.returnTo)
+    const returnTo = req.session.returnTo || '/'; // Default to homepage if no URL
+    console.log("Idemo na -> " + returnTo);
+    res.redirect(returnTo); // Redirect to saved URL
+  });*/
+
+
+// Middleware to log original URLs before redirecting to login -> ovo koristim
+/*app.use((req, res, next) => {
+  if (!req.oidc.isAuthenticated() && req.originalUrl.startsWith("/ticket/")) {
+    console.log("zas smo tu");
+    console.log(req.originalUrl + " <- original");
+    const fullURL = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+    
+    req.session.returnTo = fullURL; 
+    console.log("sad bi trebalo bit -> " + req.session.returnTo);
+
+    return res.redirect('/login');
+  }
+  next();
+});*/
+
+/*app.use((req, res, next) => {
+    if (!req.oidc.isAuthenticated()) {
+      console.log("zas smo tu");
+      return res.redirect('/login');
+    }
+    next();
+  });*/
+
+app.get('/login', (req, res) => {
+  res.oidc.login();
+});
+
+// Custom callback to handle redirects after login
+
+
+// Routes
+app.use('/api', api);
+app.use('/ticket', ticket);
+app.use('/', routes);
+
+// Error handler for unauthorized users
+app.use((err, req, res, next) => {
+  if (err.name === 'UnauthorizedError') {
+    res.redirect('/login');
+  } else {
+    next(err);
+  }
+});
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});

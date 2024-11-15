@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Tomislav Kožul">
+    <title>Vulnerable Bank</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="/index.js" defer></script>    
+</head>
+<body>
+    <div class="content-row">
+        <div class="column column-left">
+            <div class="header-bar">
+                <p class="title">Vulnerable <br>Bank</p>
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="column column-right sub-title">
+            <p>Your credit cards are <span style="color: #555;">not</span> safe with us</p>
+        </div>
+    </div>
+    
+    <div class="content-row-reduced">
+        <div class="column column-left">
+            
+            <div class="input-section">
+                <p class="container-title">Login</p>
+                <form id="loginForm" class="input-form">
+                    <label for="username_input">username:</label>
+                    <input type="text" id="username_input" maxlength="50" required><br><br>
+
+                    <label for="password_input">password:</label>
+                    <input type="password" id="password_input" required><br><br>
+
+                    <label>
+                        <input type="checkbox" id="allow-inject">
+                        Allow SQL injection
+                    </label><br><br>
+
+                    <button type="submit">Log in</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="column column-right">
+            <p class="vulnerability-title">SQL injection</p>
+            <p class="vulnerability-desc">If "Allow SQL injection" checkbox is not checked, the form works fine. <span style="color: #555;">But...</span></p>
+            <p class="vulnerability-desc">If you check it, the vulnerability appears which allows you to modify SQL query sent to database.</p>
+            <p class="vulnerability-desc">For example, you can login as regular user "<span style="color: #999;">johndoe</span>" with password "<span style="color: #999;">123456</span>", but if SQL injection is allowed and you enter <br>"<span style="color: #999;">' OR 1=1 ;--</span>" with any password, and you will recieve data for all existing users.</p>
+            <p class="vulnerability-desc"></p>
+        </div>
+    </div>
+    <div class="content-row-reduced" id="response-section">
+        <div class="column full-width">
+            <div class="response-center">
+            <p class="generating-text response-header no-show">fetching user data...</p>
+            <div class="error no-show">
+                <p class="error-text"><span id="error-text"></span></p>
+            </div>
+        </div>
+            <div class="response no-show">
+                <div class="response-center">
+                <p class="response-header username"><span id="response-username"></span>, your credit card data fetched successfully!</p>
+                <table class="data-table" id="creditDataTable" border="1">
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Card Number</th>
+                            <th>Expiry Date</th>
+                            <th>CVV</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="content-row-reduced">
+        <div class="column column-left-swap">
+            <p class="vulnerability-title">Broken Authentication</p>
+            <p class="vulnerability-desc">In the forms like previous one, it's really easy to create <span style="color: #555;">automated tool</span> for password guessing.</p>
+            <p class="vulnerability-desc">If you know your friend Alice Johnson is a client of Vulnerable Bank with username "<span style="color: #999;">alicej</span>"", you can try to guess his password.</p>
+            <p class="vulnerability-desc">This type of attack is also known as <i>vertical attack</i>.</p>
+            <p class="vulnerability-desc">However, a simple 'captcha' test can prevent usage of automated password guessing tools, or at least slow down the attacker.</p>
+            <p class="vulnerability-desc">Some of the most commonly used passwords are: <span style="color: #999;">123456</span>, <span style="color: #999;">qwert123</span>, <span style="color: #999;">password123</span>.</p>
+            <p class="vulnerability-desc">You can try to guess John's password by using provided passwords both with and without 'captcha' test enabled.</p>
+            <p class="vulnerability-desc">You can enable or disable 'captcha' by pressing the button below:</p>
+            <button class="enable-captcha-button captcha-button" type="button" onclick="enableCaptcha()">Enable Captcha</button>
+            <button class="disable-captcha-button captcha-button no-show" type="button" onclick="disableCaptcha()">Disable Captcha</button>
+        </div>
+
+
+        <div class="column column-right">
+            
+            <div class="input-section input-no-captcha" style="width: 100%;">
+                <p class="container-title">Login</p>
+                <form id="loginFormNoCaptcha" class="input-form">
+                    <label for="username_input">username:</label>
+                    <input type="text" id="username_input" value="alicej" maxlength="50" readonly required disabled><br><br>
+
+                    <label for="password_input">password:</label>
+                    <input type="password" id="password_input" required><br><br>
+
+                    <button type="submit">Log in</button>
+                </form>
+            </div>
+
+            <div class="input-section input-captcha no-show" style="width: 100%;">
+                <p class="container-title">Login</p>
+                <form id="loginFormCaptcha" class="input-form">
+                    <label for="username_input">username:</label>
+                    <input type="text" id="username_input" value="alicej" maxlength="50" readonly required disabled><br><br>
+
+                    <label for="password_input">password:</label>
+                    <input type="password" id="password_input" required><br><br>
+
+                    <div class="g-recaptcha" data-sitekey="6LcnZHcqAAAAADtJUQO9Xw--Xyi_PtknK7WIHiMu" data-callback="setCaptchaResponse"></div><br>
+
+                    <button id="captcha-submit-button" type="submit">Log in</button>
+                </form>
+            </div>
+        </div>
+
+        
+    </div>
+
+
+
+    <p class="copyright">© 2024 Tomislav Kožul</p>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.4.4/qrcode.js" integrity="sha512-oxrVyBhqnzQ0BzuM0A/6dEIk0alz0p4SpDRaWvtuUoarIc8rnL5lVniHG5Dp21MRFojcQcmKHjaskNXhSaUPPw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+</body>
+</html>
