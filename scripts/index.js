@@ -28,6 +28,16 @@ document.addEventListener("DOMContentLoaded", () => {
         color: "#e26a1f"
     };
 
+    // svojstva loptice
+    const ball = {
+        radius: 3,
+        x: canvas.width / 2,
+        y: platform.y - 3,
+        dx: 2,
+        dy: -2,
+        color: "lightblue"
+    };
+
     // inicijalizacija polja cigli
     const bricks = [];
     for (let row = 0; row < BRICK_ROWS; row++) {
@@ -87,6 +97,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // crtanje loptice
+    function drawBall() {
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.fillStyle = ball.color;
+        ctx.fill();
+        ctx.closePath();
+    }
+
     // očisti platno
     function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -106,6 +125,37 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // ažuriranje pozicije loptice
+    function updateBallPosition() {
+        ball.x += ball.dx;
+        ball.y += ball.dy;
+
+        // ako se sudari s lijevim ili desnim rubom
+        if (ball.x - ball.radius < 0 || ball.x + ball.radius > canvas.width) {
+            ball.dx *= -1;
+        }
+
+        // ako udari u gornji rub
+        if (ball.y - ball.radius < 0) {
+            ball.dy *= -1;
+        }
+
+        // pad na dno
+        if (ball.y - ball.radius > platform.y + platform.height) {
+            alert("GAME OVER!");
+            document.location.reload();
+        }
+
+        // odbijanje od platforme
+        if (
+            ball.y + ball.radius > platform.y &&
+            ball.x > platform.x &&
+            ball.x < platform.x + platform.width
+        ) {
+            ball.dy *= -1;
+        }
+    }
+
     // crtanje platna
     function updateGameCanvas() {
         // prvo cistimo canvas da se ne preslika i staro stanje elemenata
@@ -114,11 +164,14 @@ document.addEventListener("DOMContentLoaded", () => {
         drawPlatform();
         // crtamo cigle
         drawBricks();
+        // crtanje loptice
+        drawBall();
     }
 
     // funkcija koja odrađuje jedan frame igre
     function gameLoop() {
         updatePlatformPosition();
+        updateBallPosition();
         updateGameCanvas();
         requestAnimationFrame(gameLoop);
     }
