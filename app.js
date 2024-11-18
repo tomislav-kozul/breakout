@@ -11,6 +11,7 @@ const port = externalUrl && process.env.PORT ? parseInt(process.env.PORT) : 3000
 
 app.use(express.static(path.join(__dirname, 'views')));
 app.use(express.static(path.join(__dirname, 'scripts')));
+app.use(express.static('public'));
 
 app.use('/api', api);
 
