@@ -7,18 +7,18 @@ var BRICK_PADDING = 5;
 var BALL_SPEED = 1;
 
 // pozadinska pjesma koja krece kada krene i igra
-const backgroundMusic = new Audio("/sounds/background.mp3");
+const backgroundMusic = new Audio("background.mp3");
 backgroundMusic.loop = true;
 backgroundMusic.volume = 0.2;
 
 // ostali zvukovi
-const bounceSound = new Audio("sounds/bounce.mp3");
+const bounceSound = new Audio("bounce.mp3");
 bounceSound.volume = 0.5;
-const winSound = new Audio("sounds/win.mp3");
+const winSound = new Audio("win.mp3");
 winSound.volume = 0.7
-const gameOverSound = new Audio("sounds/game-over.mp3");
+const gameOverSound = new Audio("game-over.mp3");
 gameOverSound.volume = 0.7
-const blockHitSound = new Audio("sounds/block-hit.mp3");
+const blockHitSound = new Audio("block-hit.mp3");
 blockHitSound.volume = 0.3;
 
 function playSound(sound) {
